@@ -2,6 +2,7 @@
 
 import scanner
 import ply.yacc as yacc
+from ast import *
 
 tokens = scanner.tokens
 
@@ -41,11 +42,33 @@ def p_instructions_2(p):
     """instructions : instruction """
 
 
-# to finish the grammar
-# ....
+def p_expression_binop(p):
+    '''expression : expression + expression
+                  | expression - expression
+                  | expression * expression
+                  | expression / expression
+                  | expression < expression
+                  | expression > expression
+                  | expression DOTADD expression
+                  | expression DOTSUB expression
+                  | expression DOTMUL expression
+                  | expression DOTDIV expression
+                  | expression EQ expression
+                  | expression LTE expression
+                  | expression GTE expression
+                  | expression NE expression '''
+
+    p[0] = BinOp(p[1], p[2], p[3])
 
 
+def p_expression_group(p):
+    'expression : LPAREN expression RPAREN'
+    p[0] = p[2]
 
+
+def p_expression_number(p):
+    'expression : NUMBER'
+    p[0] = Number(p[1])
 
 
 parser = yacc.yacc()
