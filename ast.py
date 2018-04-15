@@ -23,3 +23,8 @@ class Number(Expr):
     def __init__(self, value):
         self.type = "number"
         self.value = value
+
+
+class PrintInstruction(Node):
+    def __init__(self, toprint):
+        self.toprint = toprint
