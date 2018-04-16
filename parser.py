@@ -8,6 +8,8 @@ names_dictionary = {}
 tokens = scanner.tokens
 
 precedence = (
+    ('nonassoc', 'IFY'),
+    ('nonassoc', 'ELSE'),
     ("left", '+', '-'),
     ("left", '*', '/'),
     ("left", "DOTADD", "DOTSUB"),
@@ -44,14 +46,14 @@ def p_instructions_2(p):
 
 
 def p_instruction(p):
-    """ instruction : assign_instruction
-                    | print_instruction
-                    | return_instruction
-                    | break_instruction
-                    | continue_instruction
+    """ instruction : assign_instruction ";"
+                    | print_instruction ";"
+                    | return_instruction ";"
+                    | break_instruction ";"
+                    | continue_instruction ";"
                     | for_instruction
                     | while_instruction
-                    | choice_instruction"""
+                    | choice_instruction """
     p[0] = p[1]
 
 
@@ -66,7 +68,7 @@ def p_assign_instruction(p):
                          | var assign_operand ID
                          | var assign_operand var
                          | var assign_operand expression
-                         | ID "=" matrix_init_instruction
+                         | var "=" matrix_init_instruction
     '''
     p[0] = AssignInstruction(p[2], p[1], p[3])
 
@@ -85,7 +87,7 @@ def p_var(p):
 
 
 def p_assign_operand(p):
-    '''assign_operand :  "="
+    '''assign_operand : "="
                       | ADDASSIGN
                       | SUBASSIGN
                       | MULASSIGN
@@ -109,13 +111,17 @@ def p_expression_binop(p):
                   | expression LTE expression
                   | expression GTE expression
                   | expression NE expression '''
-
     p[0] = BinOp(p[1], p[2], p[3])
 
 
 def p_expression_number(p):
     'expression : INTNUM'
     p[0] = Number(p[1])
+
+
+def p_expression_var(p):
+    'expression : var'
+    p[0] = p[1]
 
 
 def p_exp_name(p):
@@ -131,7 +137,7 @@ def p_expression_unop(p):
     '''expression : "-" expression
                   | "!" expression
     '''
-    p[0] = UnOp(p[1, p[2]])
+    p[0] = UnOp(p[1], p[2])
 
 
 def p_expression_block(p):
@@ -142,33 +148,42 @@ def p_expression_block(p):
     else:
         p[0] = p[1]
 
+
 def p_choice_instruction(p):
-    """choice_instruction : if_else
-                          | if """
+    """choice_instruction : if_else """
+    p[0] = p[1]
+
+
 def p_if_else(p):
-    'if_else : IF "(" expression ")" block ELSE block'
-    p[0] = IfElse(p[3], p[5], p[7])
+    '''if_else : IF "(" expression ")" block %prec IFY
+             | IF "(" expression ")" block ELSE block'''
+    if len(p) == 7:
+        p[0] = IfElse(p[3], p[5], p[7])
+    else:
+        p[0] = IfElse(p[3], p[5], None)
 
-
-def p_if(p):
-    'if : IF "(" expression ")" block'
-    p[0] = IfElse(p[3], p[5], None)
 
 def p_for_instruction(p):
     """for_instruction : for_1
                        | for_2"""
+    p[0] = p[1]
+
+
 def p_for_1(p):
-    'for_1 : FOR ID "=" INTNUM ":" INTNUM "{" instructions "}"'
+    'for_1 : FOR ID "=" expression ":" expression "{" instructions "}"'
     p[0] = ForLoop(p[2], p[4], p[6], p[8])
 
 
 def p_for_2(p):
-    'for_2 : FOR ID "=" INTNUM ":" INTNUM instruction '
+    'for_2 : FOR ID "=" expression ":" expression instruction '
     p[0] = ForLoop(p[2], p[4], p[6], p[7])
+
 
 def p_while_instruction(p):
     """while_instruction : while_1
                          | while_2"""
+    p[0] = p[1]
+
 
 def p_while_1(p):
     'while_1 : WHILE "(" expression ")" instruction'
@@ -196,33 +211,32 @@ def p_eye(p):
 
 
 def p_break_instruction(p):
-    'break_instruction : BREAK ";"'
+    'break_instruction : BREAK'
     p[0] = BreakInstruction()
 
 
 def p_return_instruction(p):
-    'return_instruction : RETURN ";"'
+    'return_instruction : RETURN'
     p[0] = ReturnInstruction()
 
 
 def p_continue_instruction(p):
-    'continue_instruction : CONTINUE ";"'
+    'continue_instruction : CONTINUE'
     p[0] = ContinueInstruction()
 
 
 def p_print_instruction(p):
-    'print_instruction : PRINT expression ";"'
+    '''print_instruction : PRINT vars_to_print
+                       | PRINT '"' expression '"' '''
     p[0] = PrintInstruction(p[2])
 
 
-def p_array_range(p):
-    'expression : ID range'
-    p[0] = Array(p[2])
+def p_print_list(p):
+    """vars_to_print : vars_to_print ',' expression
+                     | expression"""
+    pass
 
 
-def p_range(p):
-    'range : "[" INTNUM "," INTNUM "]" '
-    p[0] = Range(p[2], p[4])
 
 
 def p_matrix_init_instruction(p):
@@ -241,7 +255,7 @@ def p_matrix_init_fun(p):
                        | ones
                        | eye
     '''
-
+    p[0] = p[1]
 
 def p_matrix_row(p):
     """matrix_row : matrix_row ',' INTNUM
@@ -252,8 +266,7 @@ def p_matrix_row(p):
         else:
             p[0] = p[1]
         p[0].append(p[3])
-    else:
-        p[0].append(p[3])
+
 
 
 def p_matrix_rows(p):
@@ -266,7 +279,8 @@ def p_matrix_rows(p):
             p[0] = p[1]
         p[0].append(p[3])
     else:
-        p[0].append(p[3])
+        p[0] = Matrix()
+        p[0].append(p[1])
 
 
 parser = yacc.yacc()

@@ -14,7 +14,7 @@ reserved = {
     'print': 'PRINT'
 
 }
-literals = "();\'=<>[]{}:,+-*/"
+literals = "();\'=<>[]{}:,+-*/\""
 
 tokens = [
              'DOTADD',
@@ -40,6 +40,7 @@ t_DOTADD = r'\.\+'
 t_DOTSUB = r'\.\-'
 t_DOTMUL = r'\.\*'
 t_DOTDIV = '\./'
+
 
 t_ADDASSIGN = r'\+='
 t_SUBASSIGN = r'-='

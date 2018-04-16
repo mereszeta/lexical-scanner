@@ -134,7 +134,7 @@ class Matrix(Node):
         self.rows=[]
 
     def append(self,row):
-        self.rows+=row
+        self.rows.append(row)
 
 
 class Row(Node):
@@ -142,4 +142,4 @@ class Row(Node):
         self.nums = []
 
     def append(self, num):
-        self.nums += num
+        self.nums.append(num)
