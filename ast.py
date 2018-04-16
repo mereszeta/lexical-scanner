@@ -39,6 +39,7 @@ class ForLoop(Node):
         self.varTo = varTo
         self.instructions = instructions
 
+
 class WhileLoop(Node):
     def __init__(self, condition, instructions):
         self.condition = condition
@@ -89,3 +90,56 @@ class Range(Node):
     def __init__(self, start, end):
         self.start = start
         self.end = end
+
+
+class Variable(Expr):
+    def __init__(self, id):
+        self.id = id
+
+
+class SingleMatrixRef(Expr):
+    def __init__(self, id, idx):
+        self.id = id
+        self.idx = idx
+
+
+class DoubleMatrixRef(Expr):
+    def __init__(self, id, idx, idx2):
+        self.id = id
+        self.idx = idx
+        self.idx2 = idx2
+
+
+class UnOp(Expr):
+    def __init__(self, op, right):
+        self.type = "unop"
+        self.op = op
+        self.right = right
+
+
+class PrintInstruction(Node):
+    def __init__(self, toprint):
+        self.toprint = toprint
+
+
+class AssignInstruction(Node):
+    def __init__(self, operand, left, right):
+        self.operand = operand
+        self.left = left
+        self.right = right
+
+
+class Matrix(Node):
+    def __init__(self):
+        self.rows=[]
+
+    def append(self,row):
+        self.rows+=row
+
+
+class Row(Node):
+    def __init__(self):
+        self.nums = []
+
+    def append(self, num):
+        self.nums += num

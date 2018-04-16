@@ -8,10 +8,10 @@ names_dictionary = {}
 tokens = scanner.tokens
 
 precedence = (
-    # to fill ...
-    # ("left", '+', '-'),
-    # ("left", '*', '/')
-    # to fill ...
+    ("left", '+', '-'),
+    ("left", '*', '/'),
+    ("left", "DOTADD", "DOTSUB"),
+    ("left", "DOTMUL", "DOTDIV"),
 )
 
 
@@ -42,9 +42,43 @@ def p_instructions_1(p):
 def p_instructions_2(p):
     """instructions : instruction """
 
-def p_instruction_assign(p):
-    'instruction : ID "=" expression'
-    names_dictionary[p[1]] = p[3]
+def p_expression_group(p):
+    'expression : "(" expression ")"'
+    p[0] = p[2]
+
+
+def p_assign_instruction(p):
+    '''assign_instruction : var assign_operand INTNUM
+                         | var assign_operand FLOATNUM
+                         | var assign_operand ID
+                         | var assign_operand var
+                         | var assign_operand expression
+    '''
+    p[0] = AssignInstruction(p[2], p[1], p[3])
+
+
+def p_var(p):
+    '''var : ID
+           | ID '[' INTNUM ']'
+           | ID '[' INTNUM ',' INTNUM ']'
+    '''
+    if len(p) == 2:
+        p[0] = Variable(p[1])
+    elif len(p) == 5:
+        p[0] = SingleMatrixRef(p[1], p[3])
+    elif len(p) == 7:
+        p[0] = DoubleMatrixRef(p[1], p[3], p[5])
+
+
+def p_assign_operand(p):
+    '''assign_operand :  "="
+                      | ADDASSIGN
+                      | SUBASSIGN
+                      | MULASSIGN
+                      | DIVASSIGN
+    '''
+    p[0] = p[1]
+    print("INSTRUCTION ASSIGN")
 
 def p_expression_binop(p):
     '''expression : expression "+" expression
@@ -65,11 +99,6 @@ def p_expression_binop(p):
     p[0] = BinOp(p[1], p[2], p[3])
 
 
-def p_expression_group(p):
-    'expression : "(" expression ")"'
-    p[0] = p[2]
-
-
 def p_expression_number(p):
     'expression : INTNUM'
     p[0] = Number(p[1])
@@ -81,6 +110,12 @@ def p_exp_name(p):
     except LookupError:
         print("Name not defined")
         p[0] = 0
+
+def p_expression_unop(p):
+    '''expression : "-" expression
+                  | "!" expression
+    '''
+    p[0] = UnOp(p[1, p[2]])
 
 
 def p_expression_block(p):
@@ -122,17 +157,17 @@ def p_while_2(p):
 
 
 def p_ones(p):
-    'expression : ONES "(" INTNUM ")"'
+    'ones : ONES "(" INTNUM ")"'
     p[0] = Ones(p[3])
 
 
 def p_zeros(p):
-    'expression : ZEROS "(" INTNUM ")"'
+    'zeros : ZEROS "(" INTNUM ")"'
     p[0] = Zeros(p[3])
 
 
 def p_eye(p):
-    'expression : EYE "(" INTNUM ")"'
+    'eye : EYE "(" INTNUM ")"'
     p[0] = Eye(p[3])
 
 
@@ -164,5 +199,47 @@ def p_array_range(p):
 def p_range(p):
     'range : "[" INTNUM "," INTNUM "]" '
     p[0]= Range(p[2], p[4])
+
+
+
+def p_matrix_init_instruction(p):
+    '''matrix_init_instruction : matrix_init_fun
+                               | '[' matrix_row ']'
+                               | '[' matrix_rows ']'
+    '''
+    if len(p)==2:
+        p[0] = p[1]
+    else: p[0] = p[2]
+
+
+def p_matrix_init_fun(p):
+    '''matrix_init_fun : zeros
+                       | ones
+                       | eye
+    '''
+
+
+def p_matrix_row(p):
+    """matrix_row : matrix_row ',' INTNUM
+                      | INTNUM """
+    if len(p)==4:
+        if p[1] is None:
+            p[0]=Row()
+        else: p[0]=p[1]
+        p[0].append(p[3])
+    else:
+        p[0].append(p[3])
+
+
+def p_matrix_rows(p):
+    """matrix_rows : matrix_row ';' matrix_rows
+                   | matrix_row"""
+    if len(p)==4:
+        if p[1] is None:
+            p[0]=Matrix()
+        else: p[0]=p[1]
+        p[0].append(p[3])
+    else:
+        p[0].append(p[3])
 
 parser = yacc.yacc()
