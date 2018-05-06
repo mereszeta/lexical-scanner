@@ -243,9 +243,9 @@ def p_print_list(p):
     """vars_to_print : vars_to_print ',' expression
                      | expression"""
     if len(p) == 2:
-        p[0] = p[1]
+        p[0] = PrintExpression(p[1])
     else:
-        p[0] = p[3]
+        p[0] = PrintExpressions(p[1], p[3])
 
 
 def p_matrix_init_instruction(p):
@@ -272,7 +272,7 @@ def p_matrix_row(p):
                       | INTNUM """
     p[0] = Row()
     if len(p) == 4:
-        p[0].concat(p[1],p[3])
+        p[0].concat(p[1], p[3])
     else:
         p[0].append(p[1])
 

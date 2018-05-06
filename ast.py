@@ -72,6 +72,17 @@ class PrintInstruction(Node):
         self.value = value
 
 
+class PrintExpressions(Node):
+    def __init__(self, expression, expressions):
+        self.expression = expression
+        self.expressions = expressions
+
+
+class PrintExpression(Node):
+    def __init__(self, expression):
+        self.expression = expression
+
+
 class ReturnInstruction(Node):
     def __init__(self):
         pass

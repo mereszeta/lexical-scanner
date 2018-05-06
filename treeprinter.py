@@ -86,7 +86,16 @@ class TreePrinter:
     @addToClass(ast.PrintInstruction)
     def printTree(self, indent=0):
         print(createIndent(indent) + "print")
-        print(createIndent(indent + 1)+str(self.value))
+        self.value.printTree(indent+1)
+
+    @addToClass(ast.PrintExpressions)
+    def printTree(self, indent=0):
+        self.expression.printTree(indent)
+        self.expressions.printTree(indent)
+
+    @addToClass(ast.PrintExpression)
+    def printTree(self, indent=0):
+        self.expression.printTree(indent)
 
     @addToClass(ast.ReturnInstruction)
     def printTree(self, indent=0):
