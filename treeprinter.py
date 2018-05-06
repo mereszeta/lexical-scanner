@@ -116,8 +116,14 @@ class TreePrinter:
 
     @addToClass(ast.UnOp)
     def printTree(self, indent=0):
-        print(createIndent(indent) + self.op)
-        self.right.printTree(indent + 1)
+        if type(self.op) == str:
+            print(createIndent(indent) + self.op)
+        else:
+            self.op.printTree(indent)
+        if type(self.right) == str:
+            print(createIndent(indent+1) + self.right)
+        else:
+            self.right.printTree(indent+1)
 
     @addToClass(ast.AssignInstruction)
     def printTree(self, indent=0):
