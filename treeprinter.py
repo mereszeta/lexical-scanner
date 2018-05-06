@@ -23,7 +23,7 @@ class TreePrinter:
 
     @addToClass(ast.Number)
     def printTree(self, indent=0):
-        print(createIndent(indent) + self.value)
+        print(createIndent(indent) + str(self.value))
 
     @addToClass(ast.Variable)
     def printTree(self, indent=0):
@@ -48,9 +48,18 @@ class TreePrinter:
     @addToClass(ast.ForLoop)
     def printTree(self, indent=0):
         print(createIndent(indent) + 'FOR')
-        self.variable.printTree(indent + 1)
-        self.varFrom.printTree(indent + 2)
-        self.varTo.printTree(indent + 2)
+        if type(self.variable) == str:
+            print(createIndent(indent + 1) + self.variable)
+        else:
+            self.variable.printTree(indent + 1)
+        if type(self.varFrom) == str:
+            print(createIndent(indent + 2) + self.varFrom)
+        else:
+            self.varFrom.printTree(indent +  2)
+        if type(self.varTo) == str:
+            print(createIndent(indent + 2) + self.varTo)
+        else:
+            self.varTo.printTree(indent + 2)
         self.instructions.printTree(indent + 1)
 
     @addToClass(ast.WhileLoop)
@@ -77,7 +86,7 @@ class TreePrinter:
     @addToClass(ast.PrintInstruction)
     def printTree(self, indent=0):
         print(createIndent(indent) + "print")
-        self.value.printTree(indent + 1)
+        print(createIndent(indent + 1)+str(self.value))
 
     @addToClass(ast.ReturnInstruction)
     def printTree(self, indent=0):
@@ -110,9 +119,18 @@ class TreePrinter:
     @addToClass(ast.DoubleMatrixRef)
     def printTree(self, indent=0):
         print(createIndent(indent) + "ref")
-        self.id.printTree(indent + 1)
-        self.idx.printTree(indent + 1)
-        self.idx2.printTree(indent + 1)
+        if type(self.id) == str:
+            print(createIndent(indent + 1) + self.id)
+        else:
+            self.id.printTree(indent + 1)
+        if type(self.idx) == str or type(self.idx) == int:
+            print(createIndent(indent + 1) + str(self.idx))
+        else:
+            self.idx.printTree(indent + 1)
+        if type(self.idx2) == str or type(self.idx2) == int:
+            print(createIndent(indent + 1) + str(self.idx2))
+        else:
+            self.idx2.printTree(indent + 1)
 
     @addToClass(ast.UnOp)
     def printTree(self, indent=0):
@@ -121,9 +139,9 @@ class TreePrinter:
         else:
             self.op.printTree(indent)
         if type(self.right) == str:
-            print(createIndent(indent+1) + self.right)
+            print(createIndent(indent + 1) + self.right)
         else:
-            self.right.printTree(indent+1)
+            self.right.printTree(indent + 1)
 
     @addToClass(ast.AssignInstruction)
     def printTree(self, indent=0):

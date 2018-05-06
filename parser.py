@@ -139,7 +139,10 @@ def p_expression_unop(p):
                   | "!" expression
                   | expression "'"
     '''
-    p[0] = UnOp(p[1], p[2])
+    if p[2] != "'":
+        p[0] = UnOp(p[1], p[2])
+    else:
+        p[0] = UnOp(p[2], p[1])
 
 
 def p_expression_block(p):
@@ -229,14 +232,20 @@ def p_continue_instruction(p):
 
 def p_print_instruction(p):
     '''print_instruction : PRINT vars_to_print
-                       | PRINT '"' expression '"' '''
-    p[0] = PrintInstruction(p[2])
+                       | PRINT '"' vars_to_print '"' '''
+    if (p[2] != '"'):
+        p[0] = PrintInstruction(p[2])
+    else:
+        p[0] = PrintInstruction(p[3])
 
 
 def p_print_list(p):
     """vars_to_print : vars_to_print ',' expression
                      | expression"""
-    pass
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = p[3]
 
 
 def p_matrix_init_instruction(p):
@@ -261,25 +270,20 @@ def p_matrix_init_fun(p):
 def p_matrix_row(p):
     """matrix_row : matrix_row ',' INTNUM
                       | INTNUM """
+    p[0] = Row()
     if len(p) == 4:
-        if p[1] is None:
-            p[0] = Row()
-        else:
-            p[0] = p[1]
-        p[0].append(p[3])
+        p[0].concat(p[1],p[3])
+    else:
+        p[0].append(p[1])
 
 
 def p_matrix_rows(p):
     """matrix_rows : matrix_row ';' matrix_rows
                    | matrix_row"""
+    p[0] = Matrix()
     if len(p) == 4:
-        if p[1] is None:
-            p[0] = Matrix()
-        else:
-            p[0] = p[1]
-        p[0].append(p[3])
+        p[0].concat(p[3], p[1])
     else:
-        p[0] = Matrix()
         p[0].append(p[1])
 
 

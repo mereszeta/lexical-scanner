@@ -10,8 +10,9 @@ class Node:
 
 class Expr: pass
 
+
 class Instr(Node):
-    def __init__(self,instructions,instruction):
+    def __init__(self, instructions, instruction):
         self.instructions = instructions
         self.instruction = instruction
 
@@ -136,6 +137,10 @@ class Matrix(Node):
     def append(self, row):
         self.rows.append(row)
 
+    def concat(self, mtx, row):
+        self.rows = list(mtx.rows)
+        self.rows.append(row)
+
 
 class Row(Node):
     def __init__(self):
@@ -143,3 +148,7 @@ class Row(Node):
 
     def append(self, num):
         self.nums.append(num)
+
+    def concat(self, row, num):
+        self.nums = list(row.nums)
+        self.append(num)
