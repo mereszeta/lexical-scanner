@@ -10,6 +10,8 @@ tokens = scanner.tokens
 precedence = (
     ('nonassoc', 'IFY'),
     ('nonassoc', 'ELSE'),
+    ('nonassoc', '<', '>', 'EQ', 'LTE', 'GTE', 'NE',),
+    ('right', '=', 'ADDASSIGN', 'SUBASSIGN', 'MULASSIGN', 'DIVASSIGN'),
     ("left", '+', '-'),
     ("left", '*', '/'),
     ("left", "DOTADD", "DOTSUB"),
@@ -63,18 +65,16 @@ def p_expression_group(p):
 
 
 def p_assign_instruction(p):
-    '''assign_instruction : var assign_operand INTNUM
-                         | var assign_operand FLOATNUM
-                         | var assign_operand ID
-                         | var assign_operand var
-                         | var assign_operand expression
+    '''assign_instruction : var assign_operand expression
+                         | var assign_operand assign_instruction
                          | var "=" matrix_init_instruction
     '''
     p[0] = AssignInstruction(p[2], p[1], p[3])
 
 
 def p_var(p):
-    '''var : ID
+    '''
+            var : ID
            | ID '[' INTNUM ']'
            | ID '[' INTNUM ',' INTNUM ']'
     '''
@@ -115,27 +115,33 @@ def p_expression_binop(p):
 
 
 def p_expression_number(p):
-    'expression : INTNUM'
+    '''expression : INTNUM'''
+    p[0] = Number(p[1])
+
+
+def p_expression_float(p):
+    '''expression : FLOATNUM'''
     p[0] = Number(p[1])
 
 
 def p_expression_var(p):
-    'expression : var'
+    '''expression : var'''
     p[0] = p[1]
 
 
-def p_exp_name(p):
-    'expression : ID'
-    try:
-        p[0] = names_dictionary[p[1]]
-    except LookupError:
-        print("Name not defined")
-        p[0] = 0
+# def p_exp_name(p):
+#   '''expression : ID'''
+#  try:
+#     p[0] = names_dictionary[p[1]]
+# except LookupError:
+#    print("Name not defined")
+#   p[0] = 0
 
 
 def p_expression_unop(p):
     '''expression : "-" expression
                   | "!" expression
+                  | expression "'"
     '''
     p[0] = UnOp(p[1], p[2])
 
@@ -237,8 +243,6 @@ def p_print_list(p):
     pass
 
 
-
-
 def p_matrix_init_instruction(p):
     '''matrix_init_instruction : matrix_init_fun
                                | '[' matrix_row ']'
@@ -257,6 +261,7 @@ def p_matrix_init_fun(p):
     '''
     p[0] = p[1]
 
+
 def p_matrix_row(p):
     """matrix_row : matrix_row ',' INTNUM
                       | INTNUM """
@@ -266,7 +271,6 @@ def p_matrix_row(p):
         else:
             p[0] = p[1]
         p[0].append(p[3])
-
 
 
 def p_matrix_rows(p):

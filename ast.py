@@ -117,11 +117,6 @@ class UnOp(Expr):
         self.right = right
 
 
-class PrintInstruction(Node):
-    def __init__(self, toprint):
-        self.toprint = toprint
-
-
 class AssignInstruction(Node):
     def __init__(self, operand, left, right):
         self.operand = operand
@@ -131,9 +126,9 @@ class AssignInstruction(Node):
 
 class Matrix(Node):
     def __init__(self):
-        self.rows=[]
+        self.rows = []
 
-    def append(self,row):
+    def append(self, row):
         self.rows.append(row)
 
 

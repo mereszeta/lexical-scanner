@@ -13,4 +13,5 @@ if __name__ == '__main__':
 
     parser = parser.parser
     text = file.read()
-    parser.parse(text, lexer=scanner.lexer)
+    ast = parser.parse(text, lexer=scanner.lexer)
+    ast.printTree()
