@@ -10,6 +10,11 @@ class Node:
 
 class Expr: pass
 
+class Instr(Node):
+    def __init__(self,instructions,instruction):
+        self.instructions = instructions
+        self.instruction = instruction
+
 
 class BinOp(Expr):
     def __init__(self, left, op, right):

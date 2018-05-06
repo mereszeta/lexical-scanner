@@ -28,23 +28,19 @@ def p_error(p):
 
 
 def p_program(p):
-    """program : instructions_opt"""
-
-
-def p_instructions_opt_1(p):
-    """instructions_opt : instructions """
-
-
-def p_instructions_opt_2(p):
-    """instructions_opt : """
+    """program : instructions
+               |
+    """
+    p[0] = p[1]
 
 
 def p_instructions_1(p):
-    """instructions : instructions instruction """
-
-
-def p_instructions_2(p):
-    """instructions : instruction """
+    """instructions : instructions instruction
+                    | instruction"""
+    if len(p) == 3:
+        p[0] = Instr(p[1], p[2])
+    else:
+        p[0] = p[1]
 
 
 def p_instruction(p):
