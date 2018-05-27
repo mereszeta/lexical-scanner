@@ -65,7 +65,7 @@ def p_assign_instruction(p):
                          | var assign_operand assign_instruction
                          | var "=" matrix_init_instruction
     '''
-    p[0] = AssignInstruction(p[2], p[1], p[3], p.lexer.lineno)
+    p[0] = AssignInstruction(p[1], p[2], p[3], p.lexer.lineno)
 
 
 def p_var(p):
@@ -112,12 +112,12 @@ def p_expression_binop(p):
 
 def p_expression_number(p):
     '''expression : INTNUM'''
-    p[0] = Number(p[1])
+    p[0] = Number(int(p[1]))
 
 
 def p_expression_float(p):
     '''expression : FLOATNUM'''
-    p[0] = Number(p[1])
+    p[0] = Number(float(p[1]))
 
 
 def p_expression_var(p):
@@ -176,12 +176,12 @@ def p_for_instruction(p):
 
 def p_for_1(p):
     'for_1 : FOR ID "=" expression ":" expression "{" instructions "}"'
-    p[0] = ForLoop(p[2], p[4], p[6], p[8], p.lexer.lineno)
+    p[0] = ForLoop(Variable(p[2], p.lexer.lineno), p[4], p[6], p[8], p.lexer.lineno)
 
 
 def p_for_2(p):
     'for_2 : FOR ID "=" expression ":" expression instruction '
-    p[0] = ForLoop(p[2], p[4], p[6], p[7], p.lexer.lineno)
+    p[0] = ForLoop(Variable(p[2], p.lexer.lineno), p[4], p[6], p[7], p.lexer.lineno)
 
 
 def p_while_instruction(p):
