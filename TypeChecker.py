@@ -8,13 +8,14 @@ class NodeVisitor(object):
     def __init__(self):
         self.table = SymbolTable.SymbolTable("root", None)
         self.errorlist = []
+        self.stack = 0
 
-    def visit(self, node, stack):
+    def visit(self, node):
         method = 'visit_' + node.__class__.__name__
         visitor = getattr(self, method, self.generic_visit)
-        return visitor(node, stack)
+        return visitor(node)
 
-    def generic_visit(self, node, stack):        # Called if no explicit visitor function exists for a node.
+    def generic_visit(self, node):        # Called if no explicit visitor function exists for a node.
         pass
         # if isinstance(node, list):
         #     for elem in node:
@@ -36,39 +37,39 @@ class NodeVisitor(object):
 
 class TypeChecker(NodeVisitor):
 
-    def visit_Instr(self, node, stack):
+    def visit_Instr(self, node):
         print("Instr visited, first:")
-        self.visit(node.instruction, stack)
+        self.visit(node.instruction)
         print("second: ---")
         print("")
-        self.visit(node.instructions, stack)
+        self.visit(node.instructions)
 
-    def visit_PrintInstruction(self, node, stack):
+    def visit_PrintInstruction(self, node):
         print("Print visited")
-        self.visit(node.value, stack)
+        self.visit(node.value)
 
-    def visit_Variable(self, node, stack):
+    def visit_Variable(self, node):
         print("Variable visited")
         if self.table.symbols.get(node.id) is None:
             print node.line, "ERROR: variable undeclared"
         pass
 
-    def visit_AssignInstruction(self, node, stack):
+    def visit_AssignInstruction(self, node):
         print("Assignment visited")
 
         if not isinstance(node.left, ast.Variable) and not isinstance(node.left, ast.SingleMatrixRef):
             print node.line, "ERROR: assignment require variable as a left variable"
         self.table.put(node.left.id, node.right)
 
-        self.visit(node.right, stack)
+        self.visit(node.right)
 
         if node.operand != '=' and (isinstance(node.right, ast.Number) or isinstance(node.left, ast.Variable)):
             print node.line, "ERROR: assignment require number as a right variable"
 
 
-    def visit_BinOp(self, node, stack):
-        self.visit(node.left, stack)
-        self.visit(node.right, stack)
+    def visit_BinOp(self, node):
+        self.visit(node.left)
+        self.visit(node.right)
 
         if node.op in ['.+', '.-', '.*', './']:
             if (not isinstance(node.left, ast.Matrix) and not isinstance(node.left, ast.Variable)) or (not isinstance(node.right, ast.Matrix) and not isinstance(node.right, ast.Variable)):
@@ -82,29 +83,29 @@ class TypeChecker(NodeVisitor):
             if (not isinstance(node.left, ast.Number) and not isinstance(node.left, ast.Variable)) or (not isinstance(node.right, ast.Number) and not isinstance(node.right, ast.Variable)):
                 print node.line, "ERROR: lack of number argument for operator"
 
-    def visit_Ones(self, node, stack):
+    def visit_Ones(self, node):
         print("Ones visited")
         if not isinstance(node.num, ast.Variable) and not isinstance(node.num, int):
             print node.line, " ERROR: ones without a proper argument"
 
-    def visit_Zeros(self, node, stack):
+    def visit_Zeros(self, node):
         print("Zeros visited")
         if not isinstance(node.num, ast.Variable) or not isinstance(node.num, int):
             print node.line, " ERROR: zeros without a proper argument"
 
-    def visit_Eye(self, node, stack):
+    def visit_Eye(self, node):
         print("Eye visited")
         if not isinstance(node.num, ast.Variable) or not isinstance(node.num, int):
             print node.line, " ERROR: eye without a proper argument"
 
-    def visit_Matrix(self, node, stack):
+    def visit_Matrix(self, node):
         firstlen = len(node.rows[0].nums)
         for row in node.rows:
             if firstlen != len(row.nums):
                 print node.line, "ERROR: matrix vectors have different length"
                 break
 
-    def visit_SingleMatrixRef(self, node, stack):
+    def visit_SingleMatrixRef(self, node):
         if not isinstance(node.idx, int):
             print node.line, " ERROR: matrix reference requires integer arguments"
 
@@ -112,7 +113,7 @@ class TypeChecker(NodeVisitor):
             print node.line, " ERROR: matrix reference out of matrix range"
 
 
-    def visit_DoubleMatrixRef(self, node, stack):
+    def visit_DoubleMatrixRef(self, node):
         if not isinstance(node.idx, int) or not isinstance(node.idx2, int):
             print node.line, " ERROR: matrix reference requires integer arguments"
         if len(self.table.get(node.id).rows) < node.idx:
@@ -121,14 +122,14 @@ class TypeChecker(NodeVisitor):
             print node.line, " ERROR: matrix reference out of matrix range"
 
 
-    def visit_ForLoop(self, node, stack):
-        self.visit(node.variable, stack)
-        self.visit(node.varFrom, stack)
-        self.visit(node.varTo, stack)
+    def visit_ForLoop(self, node):
+        self.visit(node.variable)
+        self.visit(node.varFrom)
+        self.visit(node.varTo)
 
-        stack.append(node)
-        self.visit(node.instructions, stack)
-        stack = stack[:-1]
+        self.stack += 1
+        self.visit(node.instructions)
+        self.stack -= 1
 
         if not isinstance(node.variable, str):
             print(" ERROR: incorrect variable")
@@ -139,28 +140,28 @@ class TypeChecker(NodeVisitor):
         if not isinstance(node.varTo, ast.Number):
             print(" ERROR: incorrect 'to' variable ")
 
-    def visit_WhileLoop(self, node, stack):
-        self.visit(node.condition, stack)
+    def visit_WhileLoop(self, node):
+        self.visit(node.condition)
 
-        stack.append(node)
-        self.visit(node.instructions, stack)
-        stack = stack[:-1]
+        self.stack += 1
+        self.visit(node.instructions)
+        self.stack -= 1
 
-        if not isinstance(node.condition, str):
+        if not isinstance(node.condition, ast.BinOp):
             print(" ERROR: incorrect variable")
 
 
-    def visit_BreakInstruction(self, node, stack):
-        if len(stack) == 0 or not isinstance(stack[-1], ast.ForLoop):
+    def visit_BreakInstruction(self, node):
+        if self.stack == 0:
             print node.line, "ERROR: break without a loop"
 
-    def visit_ContinueInstruction(self, node, stack):
-        if len(stack) == 0 or not isinstance(stack[-1], ast.ForLoop):
+    def visit_ContinueInstruction(self, node):
+        if self.stack == 0:
             print(" ERROR: continue without a loop")
 
-    def visit_ReturnInstruction(self, node, stack):
+    def visit_ReturnInstruction(self, node):
         if node.variable:
-            self.visit(node.variable, stack)
+            self.visit(node.variable)
 
             if not isinstance(node.variable, ast.Variable) or not isinstance(node.variable, ast.Number) or not isinstance(node.variable, ast.AssignInstruction) or not isinstance(node.variable, ast.Matrix):
                 print(node.line + " ERROR: return with unknown type")
