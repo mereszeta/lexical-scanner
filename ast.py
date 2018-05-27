@@ -18,7 +18,8 @@ class Instr(Node):
 
 
 class BinOp(Expr):
-    def __init__(self, left, op, right):
+    def __init__(self, left, op, right, line):
+        self.line = line
         self.type = "binop"
         self.left = left
         self.right = right
@@ -39,7 +40,8 @@ class IfElse(Node):
 
 
 class ForLoop(Node):
-    def __init__(self, variable, varFrom, varTo, instructions):
+    def __init__(self, variable, varFrom, varTo, instructions, line):
+        self.line = line
         self.variable = variable
         self.varFrom = varFrom
         self.varTo = varTo
@@ -50,21 +52,6 @@ class WhileLoop(Node):
     def __init__(self, condition, instructions):
         self.condition = condition
         self.instructions = instructions
-
-
-class Ones(Node):
-    def __init__(self, num):
-        self.num = num
-
-
-class Zeros(Node):
-    def __init__(self, num):
-        self.num = num
-
-
-class Eye(Node):
-    def __init__(self, num):
-        self.num = num
 
 
 class PrintInstruction(Node):
@@ -94,7 +81,8 @@ class ContinueInstruction(Node):
 
 
 class BreakInstruction(Node):
-    def __init__(self):
+    def __init__(self, line):
+        self.line = line
         pass
 
 
@@ -110,18 +98,21 @@ class Range(Node):
 
 
 class Variable(Expr):
-    def __init__(self, id):
+    def __init__(self, id, line):
+        self.line = line
         self.id = id
 
 
 class SingleMatrixRef(Expr):
-    def __init__(self, id, idx):
+    def __init__(self, id, idx, line):
+        self.line = line
         self.id = id
         self.idx = idx
 
 
 class DoubleMatrixRef(Expr):
-    def __init__(self, id, idx, idx2):
+    def __init__(self, id, idx, idx2, line):
+        self.line = line
         self.id = id
         self.idx = idx
         self.idx2 = idx2
@@ -135,14 +126,16 @@ class UnOp(Expr):
 
 
 class AssignInstruction(Node):
-    def __init__(self, operand, left, right):
+    def __init__(self, operand, left, right, line):
+        self.line = line
         self.operand = operand
         self.left = left
         self.right = right
 
 
 class Matrix(Node):
-    def __init__(self):
+    def __init__(self, line):
+        self.line = line
         self.rows = []
 
     def append(self, row):

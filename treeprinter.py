@@ -68,20 +68,23 @@ class TreePrinter:
         self.condition.printTree(indent + 1)
         self.instructions.printTree(indent + 1)
 
-    @addToClass(ast.Ones)
-    def printTree(self, indent=0):
-        print(createIndent(indent) + "ones")
-        print(createIndent(indent) + str(self.num))
-
-    @addToClass(ast.Zeros)
-    def printTree(self, indent=0):
-        print(createIndent(indent) + "zeros")
-        print(createIndent(indent) + str(self.num))
-
-    @addToClass(ast.Eye)
-    def printTree(self, indent=0):
-        print(createIndent(indent) + "ones")
-        print(createIndent(indent) + str(self.num))
+    # Commented due to change in creating zeros, ones and eye matrix
+    # Uncomment if needed
+    #
+    # @addToClass(ast.Ones)
+    # def printTree(self, indent=0):
+    #     print(createIndent(indent) + "ones")
+    #     print(createIndent(indent) + str(self.num))
+    #
+    # @addToClass(ast.Zeros)
+    # def printTree(self, indent=0):
+    #     print(createIndent(indent) + "zeros")
+    #     print(createIndent(indent) + str(self.num))
+    #
+    # @addToClass(ast.Eye)
+    # def printTree(self, indent=0):
+    #     print(createIndent(indent) + "eye")
+    #     print(createIndent(indent) + str(self.num))
 
     @addToClass(ast.PrintInstruction)
     def printTree(self, indent=0):

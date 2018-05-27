@@ -107,7 +107,7 @@ class TypeChecker(NodeVisitor):
     def visit_SingleMatrixRef(self, node, stack):
         if not isinstance(node.idx, int):
             print node.line, " ERROR: matrix reference requires integer arguments"
-    
+
         if len(self.table.get(node.id).rows) < node.idx:
             print node.line, " ERROR: matrix reference out of matrix range"
 

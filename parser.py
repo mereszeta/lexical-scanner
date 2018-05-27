@@ -35,10 +35,10 @@ def p_program(p):
 
 
 def p_instructions_1(p):
-    """instructions : instructions instruction
+    """instructions : instruction instructions
                     | instruction"""
     if len(p) == 3:
-        p[0] = Instr(p[1], p[2])
+        p[0] = Instr(p[2], p[1])
     else:
         p[0] = p[1]
 
@@ -65,7 +65,7 @@ def p_assign_instruction(p):
                          | var assign_operand assign_instruction
                          | var "=" matrix_init_instruction
     '''
-    p[0] = AssignInstruction(p[2], p[1], p[3])
+    p[0] = AssignInstruction(p[2], p[1], p[3], p.lexer.lineno)
 
 
 def p_var(p):
@@ -75,11 +75,11 @@ def p_var(p):
            | ID '[' INTNUM ',' INTNUM ']'
     '''
     if len(p) == 2:
-        p[0] = Variable(p[1])
+        p[0] = Variable(p[1], p.lexer.lineno)
     elif len(p) == 5:
-        p[0] = SingleMatrixRef(p[1], p[3])
+        p[0] = SingleMatrixRef(p[1], p[3], p.lexer.lineno)
     elif len(p) == 7:
-        p[0] = DoubleMatrixRef(p[1], p[3], p[5])
+        p[0] = DoubleMatrixRef(p[1], p[3], p[5], p.lexer.lineno)
 
 
 def p_assign_operand(p):
@@ -107,7 +107,7 @@ def p_expression_binop(p):
                   | expression LTE expression
                   | expression GTE expression
                   | expression NE expression '''
-    p[0] = BinOp(p[1], p[2], p[3])
+    p[0] = BinOp(p[1], p[2], p[3], p.lexer.lineno)
 
 
 def p_expression_number(p):
@@ -176,12 +176,12 @@ def p_for_instruction(p):
 
 def p_for_1(p):
     'for_1 : FOR ID "=" expression ":" expression "{" instructions "}"'
-    p[0] = ForLoop(p[2], p[4], p[6], p[8])
+    p[0] = ForLoop(p[2], p[4], p[6], p[8], p.lexer.lineno)
 
 
 def p_for_2(p):
     'for_2 : FOR ID "=" expression ":" expression instruction '
-    p[0] = ForLoop(p[2], p[4], p[6], p[7])
+    p[0] = ForLoop(p[2], p[4], p[6], p[7], p.lexer.lineno)
 
 
 def p_while_instruction(p):
@@ -202,22 +202,41 @@ def p_while_2(p):
 
 def p_ones(p):
     'ones : ONES "(" INTNUM ")"'
-    p[0] = Ones(p[3])
+    p[0] = Matrix(p.lexer.lineno)
+    for i in range(p[3]):
+        row = Row()
+        for j in range(p[3]):
+            row.append(1)
+        p[0].append(row)
 
 
 def p_zeros(p):
     'zeros : ZEROS "(" INTNUM ")"'
-    p[0] = Zeros(p[3])
+    p[0] = Matrix(p.lexer.lineno)
+    for i in range(p[3]):
+        row = Row()
+        for j in range(p[3]):
+            row.append(0)
+        p[0].append(row)
 
 
 def p_eye(p):
     'eye : EYE "(" INTNUM ")"'
-    p[0] = Eye(p[3])
+    p[0] = Matrix(p.lexer.lineno)
+    for i in range(p[3]):
+        row = Row()
+        for j in range(p[3]):
+            if i == j:
+                row.append(1)
+            else:
+                row.append(0)
+        p[0].append(row)
 
 
 def p_break_instruction(p):
     'break_instruction : BREAK'
-    p[0] = BreakInstruction()
+
+    p[0] = BreakInstruction(p.lexer.lineno)
 
 
 def p_return_instruction(p):
@@ -280,7 +299,7 @@ def p_matrix_row(p):
 def p_matrix_rows(p):
     """matrix_rows : matrix_row ';' matrix_rows
                    | matrix_row"""
-    p[0] = Matrix()
+    p[0] = Matrix(p.lexer.lineno)
     if len(p) == 4:
         p[0].concat(p[3], p[1])
     else:
