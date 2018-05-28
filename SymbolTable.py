@@ -12,7 +12,7 @@ class Symbol(object):
 
 class SymbolTable(object):
 
-    def __init__(self, parent, name): # parent scope and symbol table name
+    def __init__(self, name, parent): # parent scope and symbol table name
         self.symbols = {}
         self.parent = parent
         self.name = name
@@ -23,7 +23,14 @@ class SymbolTable(object):
     #
 
     def get(self, name): # get variable symbol or fundef from <name> entry
-        return self.symbols[name]
+        inscope = self.symbols.get(name)
+        if inscope:
+            return inscope
+        else:
+            if self.parent is not None:
+                self.parent.get(name)
+            else:
+                return None # No variable of given name
     #
 
     def getParentScope(self):
@@ -31,11 +38,11 @@ class SymbolTable(object):
     #
 
     def pushScope(self, name):
-        pass
+        SymbolTable(self, name)
     #
 
     def popScope(self):
-        pass
+        return self.parent
     #
 
 
