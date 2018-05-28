@@ -7,17 +7,19 @@ class Node:
             self.children = []
         self.leaf = leaf
 
+    def accept(self, visitor):
+        return visitor.visit(self)
 
-class Expr: pass
 
-
+# done
 class Instr(Node):
     def __init__(self, instructions, instruction):
         self.instructions = instructions
         self.instruction = instruction
 
 
-class BinOp(Expr):
+# done
+class BinOp(Node):
     def __init__(self, left, op, right, line):
         self.line = line
         self.type = "binop"
@@ -26,12 +28,14 @@ class BinOp(Expr):
         self.op = op
 
 
-class Number(Expr):
+# done
+class Number(Node):
     def __init__(self, value):
         self.type = "number"
         self.value = value
 
 
+# done
 class IfElse(Node):
     def __init__(self, condition, instTrue, instFalse):
         self.condition = condition
@@ -39,6 +43,7 @@ class IfElse(Node):
         self.instFalse = instFalse
 
 
+# done
 class ForLoop(Node):
     def __init__(self, variable, varFrom, varTo, instructions, line):
         self.line = line
@@ -48,69 +53,81 @@ class ForLoop(Node):
         self.instructions = instructions
 
 
+# done
 class WhileLoop(Node):
     def __init__(self, condition, instructions):
         self.condition = condition
         self.instructions = instructions
 
 
+# done
 class PrintInstruction(Node):
     def __init__(self, value):
         self.value = value
 
 
+# done
 class PrintExpressions(Node):
     def __init__(self, expression, expressions):
         self.expression = expression
         self.expressions = expressions
 
 
+# done
 class PrintExpression(Node):
     def __init__(self, expression):
         self.expression = expression
 
 
+# done
 class ReturnInstruction(Node):
     def __init__(self):
         pass
 
 
+# done
 class ContinueInstruction(Node):
     def __init__(self):
         pass
 
 
+# done
 class BreakInstruction(Node):
     def __init__(self, line):
         self.line = line
         pass
 
 
+# done
 class Array(Node):
     def __init__(self, range):
         self.range = range
 
 
+# done
 class Range(Node):
     def __init__(self, start, end):
         self.start = start
         self.end = end
 
 
-class Variable(Expr):
+# done
+class Variable(Node):
     def __init__(self, id, line):
         self.line = line
         self.id = id
 
 
-class SingleMatrixRef(Expr):
+# done
+class SingleMatrixRef(Node):
     def __init__(self, id, idx, line):
         self.line = line
         self.id = id
         self.idx = idx
 
 
-class DoubleMatrixRef(Expr):
+# done
+class DoubleMatrixRef(Node):
     def __init__(self, id, idx, idx2, line):
         self.line = line
         self.id = id
@@ -118,21 +135,24 @@ class DoubleMatrixRef(Expr):
         self.idx2 = idx2
 
 
-class UnOp(Expr):
+# done
+class UnOp(Node):
     def __init__(self, op, right):
         self.type = "unop"
         self.op = op
         self.right = right
 
 
+# done
 class AssignInstruction(Node):
-    def __init__(self, operand, left, right, line):
+    def __init__(self, left, operand, right, line):
         self.line = line
         self.operand = operand
         self.left = left
         self.right = right
 
 
+# done
 class Matrix(Node):
     def __init__(self, line):
         self.line = line
@@ -146,6 +166,7 @@ class Matrix(Node):
         self.rows.append(row)
 
 
+# done
 class Row(Node):
     def __init__(self):
         self.nums = []
